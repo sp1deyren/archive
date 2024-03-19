@@ -1,0 +1,67 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "ren for motan :)",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.RightControl
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local Options = Fluent.Options
+
+local stopTeleporting = false
+
+local function teleportToChests()
+    local player = game.Players.LocalPlayer
+    local workspace = game.Workspace
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    for _, instance in pairs(workspace:GetDescendants()) do
+        if instance:IsA("BasePart") and string.find(instance.Name, "Chest") and not stopTeleporting then
+            local chestCFrame = instance.CFrame
+            local forwardOffset = Vector3.new(0, 0, 2)
+            local newCFrame = chestCFrame * CFrame.new(forwardOffset)
+            character:SetPrimaryPartCFrame(newCFrame)
+            wait(0.2)
+            if instance:IsA("TouchTransmitter") then
+                instance:TouchEnded(character.Humanoid)
+            end
+        end
+    end
+end
+
+local AutoChestToggle = Tabs.Main:AddToggle("AutoChestToggle", { Title = "Auto Chest", Default = false })
+
+AutoChestToggle:OnChanged(function()
+    stopTeleporting = not stopTeleporting
+    if Options.AutoChestToggle.Value then
+        teleportToChests()
+    end
+end)
+
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+SaveManager:LoadAutoloadConfig()
