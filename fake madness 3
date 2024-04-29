@@ -1,0 +1,63 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Window = Fluent:CreateWindow({
+    Title = "PLS DONATE BUT WITH FAKE ROBUX",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Auto", Icon = "AddField" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local isAutoRobuxEnabled = false
+local teleportingThread = nil
+
+local function teleportAndHold(part)
+    game.Players.LocalPlayer.Character:MoveTo(part.Position)
+    wait(0.2)
+    
+    local proximityPrompt = part:FindFirstChild("ProximityPrompt")
+    if proximityPrompt then
+        proximityPrompt.HoldDuration = 0
+    end
+    
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    wait(0.2)
+    game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end
+
+local function checkForNewModels()
+    while isAutoRobuxEnabled do
+        for _, model in ipairs(workspace:GetChildren()) do
+            if model:IsA("Model") and model.Name == "Airdrop" then
+                for _, part in ipairs(model:GetDescendants()) do
+                    if part:IsA("BasePart") and part.Name == "Lid" then
+                        teleportAndHold(part)
+                    end
+                end
+            end
+        end
+        wait(1)
+    end
+end
+
+local Toggle = Tabs.Main:AddToggle("Auto Robux", {
+    Title = "Auto Robux",
+    Default = false,
+    Callback = function(state)
+        isAutoRobuxEnabled = state
+        if state then
+            print("Toggle On")
+            teleportingThread = spawn(checkForNewModels)
+        else
+            print("Toggle Off")
+            if teleportingThread then
+                teleportingThread:Destroy()
+            end
+        end
+    end
+})
