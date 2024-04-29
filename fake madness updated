@@ -22,7 +22,7 @@ local function teleportAndHold(part)
     
     local proximityPrompt = part:FindFirstChild("ProximityPrompt")
     if proximityPrompt then
-        proximityPrompt.HoldDuration = 0.1
+        proximityPrompt.HoldDuration = 0
     end
     
     game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.E, false, game)
